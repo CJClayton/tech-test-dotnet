@@ -19,64 +19,61 @@ namespace ClearBank.DeveloperTest.Services
 
         public MakePaymentResult MakePayment(MakePaymentRequest request)
         {
-            Account account = _accountRepository.GetAccount(request.DebtorAccountNumber);
+            var account = _accountRepository.GetAccount(request.DebtorAccountNumber);
 
-            var result = new MakePaymentResult();
+            var result = new MakePaymentResult
+            {
+                Success = IsPaymentAllowed(request, account)
+            };
 
-            result.Success = true;
-            
+            if (!result.Success)
+            {
+                return result;
+            }
+
+            account.Balance -= request.Amount;
+
+            _accountRepository.UpdateAccount(account);
+
+            return result;
+        }
+
+        private bool IsPaymentAllowed(MakePaymentRequest request, Account account)
+        {
             switch (request.PaymentScheme)
             {
                 case PaymentScheme.Bacs:
-                    if (account == null)
-                    {
-                        result.Success = false;
-                    }
-                    else if (!account.AllowedPaymentSchemes.HasFlag(AllowedPaymentSchemes.Bacs))
-                    {
-                        result.Success = false;
-                    }
-                    break;
+                    return CanProcessBacs(account);
 
                 case PaymentScheme.FasterPayments:
-                    if (account == null)
-                    {
-                        result.Success = false;
-                    }
-                    else if (!account.AllowedPaymentSchemes.HasFlag(AllowedPaymentSchemes.FasterPayments))
-                    {
-                        result.Success = false;
-                    }
-                    else if (account.Balance < request.Amount)
-                    {
-                        result.Success = false;
-                    }
-                    break;
+                    return CanProcessFasterPayments(account, request);
 
                 case PaymentScheme.Chaps:
-                    if (account == null)
-                    {
-                        result.Success = false;
-                    }
-                    else if (!account.AllowedPaymentSchemes.HasFlag(AllowedPaymentSchemes.Chaps))
-                    {
-                        result.Success = false;
-                    }
-                    else if (account.Status != AccountStatus.Live)
-                    {
-                        result.Success = false;
-                    }
-                    break;
+                    return CanProcessChaps(account);
+
+                default:
+                    return true;
             }
+        }
 
-            if (result.Success)
-            {
-                account.Balance -= request.Amount;
+        private static bool CanProcessBacs(Account account)
+        {
+            return account != null &&
+                   account.AllowedPaymentSchemes.HasFlag(AllowedPaymentSchemes.Bacs);
+        }
 
-                _accountRepository.UpdateAccount(account);
-            }
+        private static bool CanProcessFasterPayments(Account account, MakePaymentRequest request)
+        {
+            return account != null &&
+                   account.AllowedPaymentSchemes.HasFlag(AllowedPaymentSchemes.FasterPayments) &&
+                   account.Balance >= request.Amount;
+        }
 
-            return result;
+        private static bool CanProcessChaps(Account account)
+        {
+            return account != null &&
+                   account.AllowedPaymentSchemes.HasFlag(AllowedPaymentSchemes.Chaps) &&
+                   account.Status == AccountStatus.Live;
         }
     }
 }
