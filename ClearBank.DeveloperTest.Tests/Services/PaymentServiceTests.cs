@@ -269,6 +269,68 @@ public class PaymentServiceTests
         Assert.Equal(10m, repository.Account.Balance);
     }
 
+    [Fact]
+    public void MakePayment_unknown_payment_scheme()
+    {
+        // Documents existing behaviour. This may be undesirable,
+        // but changing it would alter logic beyond the scope of this refactor.
+
+        // Arrange
+        var account = CreateAccount(
+            AllowedPaymentSchemes.Bacs,
+            balance: 100m);
+
+        var repository = new FakeAccountRepository
+        {
+            Account = account
+        };
+
+        var service = new PaymentService(repository);
+
+        var request = CreateRequest(
+            (PaymentScheme)999,
+            amount: 25m);
+
+        // Act
+        var result = service.MakePayment(request);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.True(repository.UpdateAccountCalled);
+        Assert.Equal(75m, repository.Account.Balance);
+    }
+
+    [Fact]
+    public void MakePayment_negative_amount()
+    {
+        // Documents existing behaviour. This may be undesirable,
+        // but changing it would alter logic beyond the scope of this refactor.
+
+        // Arrange
+        var account = CreateAccount(
+            AllowedPaymentSchemes.FasterPayments,
+            balance: 100m);
+
+        var repository = new FakeAccountRepository
+        {
+            Account = account
+        };
+
+        var service = new PaymentService(repository);
+
+        var request = CreateRequest(
+            PaymentScheme.FasterPayments,
+            amount: -25m);
+
+        // Act
+        var result = service.MakePayment(request);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.True(repository.UpdateAccountCalled);
+        Assert.Equal(125m, repository.Account.Balance);
+    }
+
     private static MakePaymentRequest CreateRequest(
             PaymentScheme paymentScheme,
             decimal amount = 10m)
