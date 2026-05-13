@@ -27,7 +27,7 @@ public class PaymentServiceTests
         // Act
         var result = service.MakePayment(request);
 
-        //Assert
+        // Assert
         Assert.True(result.Success);
     }
 
@@ -44,7 +44,7 @@ public class PaymentServiceTests
         // Act
         var result = service.MakePayment(request);
 
-        //Assert
+        // Assert
         Assert.False(result.Success);
     }
 
@@ -68,7 +68,7 @@ public class PaymentServiceTests
         // Act
         var result = service.MakePayment(request);
 
-        //Assert
+        // Assert
         Assert.False(result.Success);
     }
 
@@ -92,7 +92,7 @@ public class PaymentServiceTests
         // Act
         var result = service.MakePayment(request);
 
-        //Assert
+        // Assert
         Assert.True(result.Success);
     }
 
@@ -116,7 +116,7 @@ public class PaymentServiceTests
         // Act
         var result = service.MakePayment(request);
 
-        //Assert
+        // Assert
         Assert.False(result.Success);
     }
 
@@ -140,7 +140,7 @@ public class PaymentServiceTests
         // Act
         var result = service.MakePayment(request);
 
-        //Assert
+        // Assert
         Assert.False(result.Success);
     }
 
@@ -165,7 +165,7 @@ public class PaymentServiceTests
         // Act
         var result = service.MakePayment(request);
 
-        //Assert
+        // Assert
         Assert.True(result.Success);
     }
 
@@ -190,7 +190,7 @@ public class PaymentServiceTests
         // Act
         var result = service.MakePayment(request);
 
-        //Assert
+        // Assert
         Assert.False(result.Success);
     }
 
@@ -215,7 +215,7 @@ public class PaymentServiceTests
         // Act
         var result = service.MakePayment(request);
 
-        //Assert
+        // Assert
         Assert.False(result.Success);
     }
 
@@ -239,7 +239,7 @@ public class PaymentServiceTests
         // Act
         service.MakePayment(request);
 
-        //Assert
+        // Assert
         Assert.True(repository.UpdateAccountCalled);
         Assert.Equal(75m, repository.Account.Balance);
     }
@@ -264,13 +264,13 @@ public class PaymentServiceTests
         // Act
         service.MakePayment(request);
 
-        //Assert
+        // Assert
         Assert.False(repository.UpdateAccountCalled);
         Assert.Equal(10m, repository.Account.Balance);
     }
 
     [Fact]
-    public void MakePayment_unknown_payment_scheme()
+    public void MakePayment_preserves_existing_behaviour_for_unknown_payment_scheme()
     {
         // Documents existing behaviour. This may be undesirable,
         // but changing it would alter logic beyond the scope of this refactor.
@@ -301,7 +301,7 @@ public class PaymentServiceTests
     }
 
     [Fact]
-    public void MakePayment_negative_amount()
+    public void MakePayment_preserves_existing_behaviour_for_negative_amount()
     {
         // Documents existing behaviour. This may be undesirable,
         // but changing it would alter logic beyond the scope of this refactor.

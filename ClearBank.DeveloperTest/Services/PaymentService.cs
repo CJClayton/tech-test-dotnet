@@ -38,7 +38,7 @@ namespace ClearBank.DeveloperTest.Services
             return result;
         }
 
-        private bool IsPaymentAllowed(MakePaymentRequest request, Account account)
+        private static bool IsPaymentAllowed(MakePaymentRequest request, Account account)
         {
             switch (request.PaymentScheme)
             {
